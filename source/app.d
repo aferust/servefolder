@@ -71,7 +71,7 @@ mixin ServerinoMain;
 
 	if (req.uri == "/"){
 		foreach(entry; ["index.html", "index.htm"]){
-			auto entryPath = buildNormalizedPath(folder, "index.html");
+			auto entryPath = buildNormalizedPath(folder, entry);
 			if (exists(entryPath)){
 				output ~= readText(entryPath);
 				return;
