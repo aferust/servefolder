@@ -90,8 +90,7 @@ void appendLinesToFile(string filePath, string[] lines)
     if (!file.isOpen())
     {
         // Handle error opening the file
-        writeln("Error: Unable to open file for appending.");
-        return;
+        throw new Exception("Error: Unable to open file for appending.");
     }
 
     string pload;
