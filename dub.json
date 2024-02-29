@@ -1,0 +1,10 @@
+{
+	"authors": [
+		"user"
+	],
+	"dependencies": {
+		"serverino": "~>0.5.1"
+	},
+	"license": "BSL-1.0",
+	"name": "servefolder"
+}
