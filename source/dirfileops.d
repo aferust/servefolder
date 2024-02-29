@@ -8,7 +8,7 @@ import std.string;
 import std.exception;
 
 string[] listFilesRecursively(string directory) {
-	import std.container : SList;
+    import std.container : SList;
 
     string[] filePATHS;
     SList!string directoriesToExplore; // Maintain a list of directories to explore
@@ -31,31 +31,31 @@ string[] listFilesRecursively(string directory) {
 
     return filePATHS;
 
-	/+ typical recursion version here:
-	string[] filePATHS;
+    /+ typical recursion version here:
+    string[] filePATHS;
     foreach (dirEntry; dirEntries(directory, SpanMode.depth)) {
         if (dirEntry.isDir) {
             if (!dirEntry.name.startsWith(".") && !dirEntry.name.startsWith("_")) {
                 listFilesRecursively(dirEntry.name);
             }
         } else {
-			filePATHS ~= dirEntry.name;
+            filePATHS ~= dirEntry.name;
         }
     }
 
-	return filePATHS;
-	+/
+    return filePATHS;
+    +/
 }
 
 
 string removeFolderFromPath(string filePath, string folderPath)
 {
     import std.algorithm : startsWith;
-	import std.string : indexOf, startsWith;
-	import std.array;
-	import std.path : dirSeparator;
-	import std.algorithm;
-	import std.conv : to;
+    import std.string : indexOf, startsWith;
+    import std.array;
+    import std.path : dirSeparator;
+    import std.algorithm;
+    import std.conv : to;
     
     // Replace Windows backslashes with forward slashes for consistency
     folderPath = folderPath.replace('\\', '/');

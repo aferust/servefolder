@@ -1,10 +1,11 @@
 {
-	"authors": [
-		"user"
-	],
-	"dependencies": {
-		"serverino": "~>0.5.1"
-	},
-	"license": "BSL-1.0",
-	"name": "servefolder"
+    "authors": [
+        "Ferhat Kurtulmuş"
+    ],
+    "description": "A simple HTTP server for static files using serverino",
+    "dependencies": {
+        "serverino": "~>0.5.1"
+    },
+    "license": "BSL-1.0",
+    "name": "servefolder"
 }
