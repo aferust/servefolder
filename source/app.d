@@ -3,6 +3,8 @@ import std.conv;
 import std.file;
 import std.path;
 import std.algorithm;
+import std.process : environment;
+import std.json : JSONValue, parseJSON, toJSON;
 import std.string;
 import std.experimental.logger;
 
@@ -13,26 +15,16 @@ import serverino;
 import dirfileops;
 import mimes;
 
-enum tmpFileName = "tmp_servefolder.txt";
-
-__gshared string[] _files;
+__gshared JSONValue[] _files;
 __gshared string folder;
 ushort port = 8080;
 
-@onServerInit ServerinoConfig setup(string[] _args)
+@onServerInit ServerinoConfig setup(string[] args)
 {
-    const args = _args;
-    
-    if(!tmpFileName.exists){
-        if(args.length > 1){
-            folder = args.length > 1 ? args[1] : dirName(thisExePath());
-            if(args.length > 2)
-                port = args[2].to!ushort;
-        }
-        
-        (folder ~ "\n").toFile(tmpFileName);
-        _files = listFilesRecursively(folder);
-        appendLinesToFile(tmpFileName, _files);
+    // we can only handle port here, the rest will be handled in onDaemonStart
+
+    if(args.length > 2){
+        port = args[2].to!ushort;
     }
 
     ServerinoConfig sc = ServerinoConfig.create(); // Config with default params
@@ -42,26 +34,42 @@ ushort port = 8080;
    return sc;
 }
 
-@onWorkerStart void start()
-{
-    string[] payload = readPathsFromTmpFile(tmpFileName);
-    folder = payload[0];
-    _files = payload[1..$]; //listFilesRecursively(folder);
+@onDaemonStart void daemonStart(){
+
+    const args = Runtime.args();
+
+    auto evar = environment.get("servefolder_paths", null);
+
+    if(evar is null){
+        if(args.length > 1){
+            folder = args.length > 1 ? args[1] : dirName(thisExePath());
+        }
+        
+        _files = listFilesRecursively(folder);
+        
+        JSONValue payload;
+        payload.array = _files;
+        environment["servefolder_paths"] = toJSON(payload);
+    }
 }
 
-@onDaemonStart daemonStart(){
-    
+@onWorkerStart void start()
+{
+    immutable envvar = environment["servefolder_paths"];
+    auto payload = parseJSON(envvar);
+    folder = payload.array[0].str;
+    _files = payload.array[1..$];
 }
 
 mixin ServerinoMain;
 
 @endpoint void greeter(Request req, Output output)
 {
-    foreach (string fullPath; _files){
-        string uri = "/";
-        uri ~= fullPath.removeFolderFromPath(folder);
+    foreach (_jsonfullpath; _files){
+        string fullPath = _jsonfullpath.str;
+        string uri = fullPath.removeFolderFromPath(folder);
 
-        if(req.uri == uri){
+        if(req.uri[1..$] == uri){
             if(auto valptr = extension(fullPath) in _mimes)
                 output.addHeader("Content-Type", *valptr);
             output ~= read(fullPath);

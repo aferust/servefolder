@@ -3,14 +3,18 @@ module dirfileops;
 import std.file;
 import std.stdio;
 import std.path;
+import std.json;
 import std.algorithm;
 import std.string;
 import std.exception;
 
-string[] listFilesRecursively(string directory) {
+JSONValue[] listFilesRecursively(string directory) {
+    // use heap stack for recursion to avoid hitting the stack limits
     import std.container : SList;
 
-    string[] filePATHS;
+    JSONValue filePATHS; 
+    filePATHS.array = [JSONValue(directory)];
+
     SList!string directoriesToExplore; // Maintain a list of directories to explore
 
     directoriesToExplore.insertFront(directory);
@@ -24,27 +28,12 @@ string[] listFilesRecursively(string directory) {
                 // Add subdirectories to explore
                 directoriesToExplore.insertFront(dirEntry.name);
             } else {
-                filePATHS ~= dirEntry.name;
+                filePATHS.array ~= JSONValue(dirEntry.name);
             }
         }
     }
 
-    return filePATHS;
-
-    /+ typical recursion version here:
-    string[] filePATHS;
-    foreach (dirEntry; dirEntries(directory, SpanMode.depth)) {
-        if (dirEntry.isDir) {
-            if (!dirEntry.name.startsWith(".") && !dirEntry.name.startsWith("_")) {
-                listFilesRecursively(dirEntry.name);
-            }
-        } else {
-            filePATHS ~= dirEntry.name;
-        }
-    }
-
-    return filePATHS;
-    +/
+    return filePATHS.array;
 }
 
 
@@ -81,52 +70,4 @@ string removeFolderFromPath(string filePath, string folderPath)
 
     // If filePath does not start with folderPath, return the original path
     return filePath;
-}
-
-void appendLinesToFile(string filePath, string[] lines)
-{
-    auto file = File(filePath, "a");
-
-    if (!file.isOpen())
-    {
-        // Handle error opening the file
-        throw new Exception("Error: Unable to open file for appending.");
-    }
-
-    string pload;
-    foreach (line; lines)
-    {
-        pload ~= line ~ '\n';
-    }
-
-    file.write(pload);
-
-    file.close();
-}
-
-string[] readPathsFromTmpFile(string filePath)
-{
-    string[] paths;
-
-    auto file = File(filePath);
-
-    if (!file.isOpen())
-    {
-        throw new Exception("Error: Unable to open tmp file for reading.");
-        return null;
-    }
-
-    //bool firstL = false;
-
-    foreach (line; file.byLine())
-    {
-        
-        /*if(!line.empty)
-            paths ~= !firstL ? line[0..$].idup : line[0..$-1].idup;
-        firstL = true;*/
-        paths ~= line.endsWith('\r') ? line[0..$-1].idup : line.idup;
-    }
-
-    file.close();
-    return paths; // the first line should be the folder that we serve.
 }
