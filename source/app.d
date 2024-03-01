@@ -70,7 +70,7 @@ mixin ServerinoMain;
         string fullPath = _jsonfullpath.str;
         string uri = fullPath.removeFolderFromPath(folder);
 
-        if(req.uri[1..$] == uri){
+        if(req.uri[1..$] == uri && fullPath.shouldAllowToServe){
             if(auto valptr = extension(fullPath) in _mimes)
                 output.addHeader("Content-Type", *valptr);
             output ~= read(fullPath);
@@ -79,7 +79,7 @@ mixin ServerinoMain;
     }
 
     if (req.uri == "/"){
-        foreach(entry; ["index.html", "index.htm"]){
+        foreach(entry; indexFileNames){
             auto entryPath = buildNormalizedPath(folder, entry);
             if (exists(entryPath)){
                 output ~= readText(entryPath);

@@ -8,6 +8,8 @@ import std.algorithm;
 import std.string;
 import std.exception;
 
+static immutable indexFileNames = ["index.html", "index.htm"];
+
 JSONValue[] listFilesRecursively(string directory) {
     // use heap stack for recursion to avoid hitting the stack limits
     import std.container : SList;
@@ -24,11 +26,15 @@ JSONValue[] listFilesRecursively(string directory) {
         directoriesToExplore.removeFront();
 
         foreach (dirEntry; dirEntries(currentDirectory, SpanMode.depth)) {
-            if (dirEntry.isDir && !dirEntry.name.startsWith(".") && !dirEntry.name.startsWith("_")) {
+            if (dirEntry.isDir && dirEntry.name.shouldAllowToServe) {
                 // Add subdirectories to explore
                 directoriesToExplore.insertFront(dirEntry.name);
             } else {
-                filePATHS.array ~= JSONValue(dirEntry.name);
+                
+                if(dirEntry.name.shouldAllowToServe && dirEntry.name.dirName.shouldAllowToServe){
+                    filePATHS.array ~= JSONValue(dirEntry.name);
+                }
+                    
             }
         }
     }
@@ -36,6 +42,24 @@ JSONValue[] listFilesRecursively(string directory) {
     return filePATHS.array;
 }
 
+bool shouldAllowToServe(string path){
+
+    if(!DirEntry(path).isDir){
+        // is a file but file name starts with '.'
+        if(baseName(path, extension(path)).startsWith('.')) 
+            return false;
+        // is am index file but the parent folder starts with '.'
+        if(indexFileNames.canFind(path.baseName) && path.dirName.startsWith('.'))
+            return false;
+    }
+    
+    if(path.baseName.startsWith(".") || path.dirName.startsWith("."))
+        return false;
+    if(path.baseName.startsWith("_") || path.dirName.startsWith("_"))
+        return false;
+
+    return true;
+}
 
 string removeFolderFromPath(string filePath, string folderPath)
 {
