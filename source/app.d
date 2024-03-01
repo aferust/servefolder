@@ -41,9 +41,10 @@ ushort port = 8080;
     auto evar = environment.get("servefolder_paths", null);
 
     if(evar is null){
-        if(args.length > 1){
-            folder = args.length > 1 ? args[1] : dirName(thisExePath());
-        }
+        if(args.length > 1)
+            folder = args[1];
+        else
+            folder = dirName(thisExePath());
         
         _files = listFilesRecursively(folder);
         
