@@ -3,7 +3,6 @@ module dirfileops;
 import std.file;
 import std.stdio;
 import std.path;
-import std.json;
 import std.algorithm;
 import std.string;
 import std.exception;
