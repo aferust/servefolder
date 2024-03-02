@@ -18,9 +18,6 @@ import serverino;
 import dirfileops;
 import mimes;
 
-__gshared JSONValue[] _files;
-__gshared JSONValue[] _folders;
-
 __gshared string folder;
 ushort port = 8080;
 
