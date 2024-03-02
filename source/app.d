@@ -85,40 +85,6 @@ mixin ServerinoMain;
 
 @endpoint void greeter(Request req, Output output)
 {
-   // _folders.map!(p => p.str.removeFolderFromPath(folder)).writeln;
-   /* foreach (_jsonfullpath; _folders){
-        string fullPath = _jsonfullpath.str;
-        string uri = fullPath.removeFolderFromPath(folder.noEndSep).noEndSep;
-
-        if(req.uri[1..$].noEndSep == uri && fullPath.shouldAllowToServe(folder)){
-
-            output ~= generateIndexHtml(fullPath.noEndSep);
-            return;
-        }
-    }*/
-    /*
-    foreach (_jsonfullpath; _files){
-        string fullPath = _jsonfullpath.str;
-        string uri = fullPath.removeFolderFromPath(folder);
-
-        if(req.uri[1..$] == uri && fullPath.shouldAllowToServe(folder)){
-            if(auto valptr = extension(fullPath) in _mimes)
-                output.addHeader("Content-Type", *valptr);
-            output ~= read(fullPath);
-            return;
-        }
-    }
-
-    if (req.uri == "/"){
-        foreach(entry; indexFileNames){
-            auto entryPath = buildNormalizedPath(folder, entry);
-            if (exists(entryPath)){
-                output ~= readText(entryPath);
-                return;
-            }
-        }
-    }
-    */
     folder = environment["serverinoFolder"];
 
     string ruri = req.uri;
@@ -131,7 +97,7 @@ mixin ServerinoMain;
 
             foreach(indexFile; indexFileNames){
                 auto entryPath = buildNormalizedPath(folder, indexFile).replace('/', dirSeparator);
-                //writeln(entryPath);
+
                 if (exists(entryPath)){
                     output ~= read(entryPath);
                     return;
