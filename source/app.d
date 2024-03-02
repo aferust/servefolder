@@ -102,7 +102,14 @@ mixin ServerinoMain;
             }
             
             // no index html is available, generate the default file browser
-            output ~= generateIndexHtml(requestedPath.noEndSep);
+            string c = "N";
+            string o = "A";
+
+            if(req.get.has("C"))
+                c = req.get.read("C");
+            if(req.get.has("O"))
+                o = req.get.read("O");
+            output ~= generateIndexHtml(requestedPath.noEndSep, c, o);
             return;
         
         } else {
