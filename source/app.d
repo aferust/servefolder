@@ -19,13 +19,15 @@ import dirfileops;
 import mimes;
 
 __gshared JSONValue[] _files;
+__gshared JSONValue[] _folders;
+
 __gshared string folder;
 ushort port = 8080;
 
 @onServerInit ServerinoConfig setup(string[] args)
 {
     // we can only handle port here, the rest will be handled in onDaemonStart
-    auto evar = environment.get("servefolder_paths", null);
+    auto evar = environment.get("serverinoFolder", null);
 
     if(evar is null){
 
@@ -56,7 +58,7 @@ ushort port = 8080;
 
     auto args = Runtime.args();
 
-    auto evar = environment.get("servefolder_paths", null);
+    auto evar = environment.get("serverinoFolder", null);
 
     if(evar is null){
         folder = dirName(thisExePath());
@@ -65,12 +67,9 @@ ushort port = 8080;
             "directory|d", &folder,
             "port|p", &port
         );
-
-        _files = listFilesRecursively(folder);
         
-        JSONValue payload;
-        payload.array = _files;
-        environment["servefolder_paths"] = toJSON(payload);
+        environment["serverinoFolder"] = folder;
+        environment["serverinoPort"] = port.to!string;
 
         log("The server has started to serve from the folder : ", folder);
     }
@@ -78,21 +77,31 @@ ushort port = 8080;
 
 @onWorkerStart void start()
 {
-    immutable envvar = environment["servefolder_paths"];
-    auto payload = parseJSON(envvar);
-    folder = payload.array[0].str;
-    _files = payload.array[1..$];
+    folder = environment["serverinoFolder"];
+    port = environment["serverinoPort"].to!ushort;
 }
 
 mixin ServerinoMain;
 
 @endpoint void greeter(Request req, Output output)
 {
+   // _folders.map!(p => p.str.removeFolderFromPath(folder)).writeln;
+   /* foreach (_jsonfullpath; _folders){
+        string fullPath = _jsonfullpath.str;
+        string uri = fullPath.removeFolderFromPath(folder.noEndSep).noEndSep;
+
+        if(req.uri[1..$].noEndSep == uri && fullPath.shouldAllowToServe(folder)){
+
+            output ~= generateIndexHtml(fullPath.noEndSep);
+            return;
+        }
+    }*/
+    /*
     foreach (_jsonfullpath; _files){
         string fullPath = _jsonfullpath.str;
         string uri = fullPath.removeFolderFromPath(folder);
 
-        if(req.uri[1..$] == uri && fullPath.shouldAllowToServe){
+        if(req.uri[1..$] == uri && fullPath.shouldAllowToServe(folder)){
             if(auto valptr = extension(fullPath) in _mimes)
                 output.addHeader("Content-Type", *valptr);
             output ~= read(fullPath);
@@ -108,6 +117,40 @@ mixin ServerinoMain;
                 return;
             }
         }
+    }
+    */
+    folder = environment["serverinoFolder"];
+
+    string ruri = req.uri;
+    string requestedPath = ruri == "/" ? folder : buildPath(folder, ruri[1..$]).replace('/', dirSeparator);
+
+    if (requestedPath.exists && requestedPath.shouldAllowToServe(folder)){
+
+        if(DirEntry(requestedPath).isDir){
+            // a folder is requested
+
+            foreach(indexFile; indexFileNames){
+                auto entryPath = buildNormalizedPath(folder, indexFile).replace('/', dirSeparator);
+                //writeln(entryPath);
+                if (exists(entryPath)){
+                    output ~= read(entryPath);
+                    return;
+                }
+            }
+            
+            // no index html is available, generate the default file browser
+            output ~= generateIndexHtml(requestedPath.noEndSep);
+            return;
+        
+        } else {
+            // a file is requested
+            if(auto valptr = extension(requestedPath) in _mimes)
+                output.addHeader("Content-Type", *valptr);
+            output ~= requestedPath.read;
+            return;
+        }
+
+        
     }
 
     output.status = 404;
