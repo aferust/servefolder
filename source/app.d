@@ -121,11 +121,9 @@ mixin ServerinoMain;
             // a file is requested
             if(auto valptr = extension(requestedPath) in _mimes)
                 output.addHeader("Content-Type", *valptr);
-            if(downloadableExtensions.canFind(extension(requestedPath))){
-                output.serveFile(requestedPath);
-            } else{
-                output ~= requestedPath.read;
-            }
+
+            output.serveFile(requestedPath);
+
             return;
         }
 
