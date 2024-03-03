@@ -15,7 +15,6 @@ import core.runtime: Runtime;
 import serverino;
 
 import dirfileops;
-import mimes;
 import sfaccess;
 
 __gshared string folder;
@@ -119,9 +118,6 @@ mixin ServerinoMain;
         
         } else {
             // a file is requested
-            if(auto valptr = extension(requestedPath) in _mimes)
-                output.addHeader("Content-Type", *valptr);
-
             output.serveFile(requestedPath);
 
             return;
