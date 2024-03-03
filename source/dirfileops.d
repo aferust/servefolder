@@ -40,6 +40,10 @@ bool shouldAllowToServe(string _path, string folderServed){
     return true;
 }
 
+bool isChildOf(string childEntry, string parentEntry) {
+    return childEntry.startsWith(parentEntry);
+}
+
 import std.datetime;
 
 string generateIndexHtml(string folderPath, string sortby = "N", string order = "A") {

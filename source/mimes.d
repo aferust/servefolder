@@ -1,6 +1,6 @@
 module mimes;
 
-static immutable _mimes =
+enum _mimes =
     [
       ".aac" : "audio/aac", ".abw" : "application/x-abiword", ".arc" : "application/x-freearc", ".avif" : "image/avif",
       ".bin" : "application/octet-stream", ".bmp" : "image/bmp", ".bz" : "application/x-bzip", ".bz2" : "application/x-bzip2",
@@ -22,4 +22,23 @@ static immutable _mimes =
       ".xhtml" : "application/xhtml+xml", ".xls" : "application/vnd.ms-excel", ".xlsx" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ".xml" : "application/xml", ".xul" : "application/vnd.mozilla.xul+xml", ".zip" : "application/zip", ".3gp" : "video/3gpp",
       ".3g2" : "video/3gpp2", ".7z" : "application/x-7z-compressed"
+];
+
+enum downloadableExtensions = [
+    ".aac", ".abw", ".arc", ".avif",
+    ".bin", ".bmp", ".bz", ".bz2",
+    ".cda", ".csh", ".css", ".csv",
+    ".doc", ".docx", ".eot", ".epub", ".gz", ".xz",
+    ".gif", ".htm", ".html", ".ico",
+    ".ics", ".jar", ".jpeg", ".jpg",
+    ".js", ".json", ".jsonld", ".mid",
+    ".mjs", ".mp3", ".mp4", ".mpeg", ".mpkg",
+    ".odp", ".ods", ".odt", ".oga", ".ogv", ".ogx",
+    ".opus", ".otf", ".png", ".pdf", ".php",
+    ".ppt", ".pptx", ".rar", ".rtf", ".sh", ".svg",
+    ".swf", ".tar", ".tif", ".tiff",
+    ".ts", ".ttf", ".txt", ".vsd", ".wasm",
+    ".wav", ".weba", ".webm", ".webp", ".woff", ".woff2",
+    ".xhtml", ".xls", ".xlsx", ".xml", ".xul", ".zip",
+    ".3gp", ".3g2", ".7z", ".exe"
 ];

@@ -4,7 +4,6 @@ import std.file;
 import std.path;
 import std.algorithm;
 import std.process : environment;
-import std.json : JSONValue, parseJSON, toJSON;
 import std.string;
 import std.experimental.logger;
 import std.getopt;
@@ -17,6 +16,7 @@ import serverino;
 
 import dirfileops;
 import mimes;
+import sfaccess;
 
 __gshared string folder;
 ushort port = 8080;
@@ -87,6 +87,11 @@ mixin ServerinoMain;
     string ruri = req.uri;
     string requestedPath = ruri == "/" ? folder : buildPath(folder, ruri[1..$]).replace('/', dirSeparator);
 
+    if(!isAuthorizedToAccess(req, output)){
+        output.addHeader("WWW-Authenticate", "Basic realm=\"Restricted Area\"");
+        return;
+    }
+
     if (requestedPath.exists && requestedPath.shouldAllowToServe(folder)){
 
         if(DirEntry(requestedPath).isDir){
@@ -116,7 +121,11 @@ mixin ServerinoMain;
             // a file is requested
             if(auto valptr = extension(requestedPath) in _mimes)
                 output.addHeader("Content-Type", *valptr);
-            output ~= requestedPath.read;
+            if(downloadableExtensions.canFind(extension(requestedPath))){
+                output.serveFile(requestedPath);
+            } else{
+                output ~= requestedPath.read;
+            }
             return;
         }
 
