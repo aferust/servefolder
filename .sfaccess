@@ -1,7 +1,7 @@
 # Set authorization to your folders here.
-# this folder should be placed in the served folder.
+# this config file should be placed in the served folder.
 # stored passwords must be of sha256
-# example /your/folder/ username:a_password_as_sha256_hex_string
+# example: /your/folder/ username:a_password_as_sha256_hex_string
 
 testfolder/t1/t2 ferhat:6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918
 testfolder/needauth andrea:6B51D431DF5D7F141CBECECCF79EDF3DD861C3B4069F0B11661A3EEFACBBA918
