@@ -13,6 +13,8 @@ import serverino;
 
 import dirfileops;
 
+enum fixedSalt = "Stevie Ray Vaughan";
+
 bool isAuthorizedToAccess(in Request req, ref Output output) {
     auto serverinoFolder = environment["serverinoFolder"];
     string ruri = req.uri;
@@ -29,14 +31,13 @@ bool isAuthorizedToAccess(in Request req, ref Output output) {
         if(line.startsWith('#') || line.empty)
             continue;
         
-        auto lterms = line.split(" ");
-        string path = buildPath(serverinoFolder, lterms[0]).replace('/', dirSeparator);
+        auto terms = line.split(":");
+        string folderProtected = (cast(string)terms[0]);
+        string path = buildPath(serverinoFolder, folderProtected.noStartSep).replace('/', dirSeparator).noEndSep;
 
         if (requestedPath == path || requestedPath.isChildOf(path)) {
-            auto credentials = lterms[1];
-            auto cterms = credentials.split(":");
-            auto uname = cterms[0];
-            auto pHash = cterms[1];
+            auto uname = terms[1];
+            auto pHash = terms[2];
 
             string authHeader = req.header.read("authorization");
             if (authHeader.empty || !authHeader.startsWith("Basic ")) {
@@ -49,7 +50,7 @@ bool isAuthorizedToAccess(in Request req, ref Output output) {
 
             string requsername = cast(string) reqCredentials[0];
             string reqpassword = cast(string) reqCredentials[1];
-            if (verifyPassword(requsername, reqpassword, uname.to!string, pHash.to!string)) {
+            if (verifyPassword(requsername, reqpassword, uname.to!string, pHash.to!string, folderProtected)) {
                 output.status = 200;
                 return true;
             } else {
@@ -65,7 +66,7 @@ bool isAuthorizedToAccess(in Request req, ref Output output) {
 }
 
 
-bool verifyPassword(string username, string password, string storedUsername, string storedPassword) {
+bool verifyPassword(string username, string password, string storedUsername, string storedPassword, string subfolder) {
     import std.string;
     import std.digest;
     import std.digest.sha;
@@ -75,5 +76,11 @@ bool verifyPassword(string username, string password, string storedUsername, str
     storedUsername = storedUsername.strip;
     storedPassword = storedPassword.strip;
 
-    return (username == storedUsername) && (password.sha256Of.toHexString.toLower == storedPassword.toLower);
+    return (username == storedUsername) && (makeHash(username, password, subfolder).toLower == storedPassword.toLower);
+}
+
+string makeHash(string username, string rawpassword, string subfolder){
+    import std.digest.sha;
+    import std.format;
+    return sha256Of(format!"%s:%s:%s"(subfolder, username, rawpassword)).toHexString.dup;
 }

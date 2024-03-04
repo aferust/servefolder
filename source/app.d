@@ -29,15 +29,42 @@ ushort port = 8080;
 
         string unused;
 
+        bool add_auth = false;
+        string user = "";
+        
+        enum Write_auth { no, yes }
+        Write_auth write_auth;
+
+        string authfolder;
+
         auto helpInformation = getopt( args, std.getopt.config.bundling,
             "directory|d", &unused,
-            "port|p", &port
+            "port|p", &port,
+            "write-auth", &write_auth,
+            "user", &user,
+            "authfolder", &authfolder
         );
 
         if (helpInformation.helpWanted)
         {
             defaultGetoptPrinter("help information.",
             helpInformation.options);
+            exit(0);
+        }
+
+        if (write_auth == Write_auth.yes){
+            while(user.empty){
+                write("> please enter a user name: ");
+                user = readln().chomp;
+            }
+            
+            string rawpass;
+            while(rawpass is null){
+                writef("> please set a password for user %s : ", user);
+                rawpass = readln().chomp;
+            }
+
+            writefln("%s:%s:%s", authfolder, user, makeHash(user, rawpass, authfolder.chomp));
             exit(0);
         }
     }
