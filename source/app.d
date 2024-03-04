@@ -97,7 +97,7 @@ mixin ServerinoMain;
             // a folder is requested
 
             foreach(indexFile; indexFileNames){
-                auto entryPath = buildNormalizedPath(folder, indexFile).replace('/', dirSeparator);
+                auto entryPath = buildNormalizedPath(requestedPath, indexFile).replace('/', dirSeparator);
 
                 if (exists(entryPath)){
                     output ~= read(entryPath);
