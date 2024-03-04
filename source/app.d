@@ -106,13 +106,9 @@ mixin ServerinoMain;
             }
             
             // no index html is available, generate the default file browser
-            string c = "N";
-            string o = "A";
 
-            if(req.get.has("C"))
-                c = req.get.read("C");
-            if(req.get.has("O"))
-                o = req.get.read("O");
+            string c = req.get.read("C", "N");
+            string o = req.get.read("O", "A");
             output ~= generateIndexHtml(requestedPath.noEndSep, c, o);
             return;
         
