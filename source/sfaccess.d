@@ -13,8 +13,6 @@ import serverino;
 
 import dirfileops;
 
-enum fixedSalt = "Stevie Ray Vaughan";
-
 bool isAuthorizedToAccess(in Request req, ref Output output) {
     auto serverinoFolder = environment["serverinoFolder"];
     string ruri = req.uri;
