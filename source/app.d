@@ -53,6 +53,11 @@ ushort port = 8080;
         }
 
         if (write_auth == Write_auth.yes){
+            while(authfolder.empty){
+                write("> please enter a subfolder to protect: ");
+                authfolder = readln().chomp;
+            }
+
             while(user.empty){
                 write("> please enter a user name: ");
                 user = readln().chomp;
@@ -64,6 +69,7 @@ ushort port = 8080;
                 rawpass = readln().chomp;
             }
 
+            writeln("Warning: this command does not manage your .sfaccess file.\nYou must manually copy the below text into your .sfaccess file");
             writefln("%s:%s:%s", authfolder, user, makeHash(user, rawpass, authfolder.chomp));
             exit(0);
         }
