@@ -4,7 +4,7 @@
     ],
     "description": "A simple and extremely lightweight HTTP server for static files using serverino.",
     "dependencies": {
-        "serverino": "~>0.6.0"
+        "serverino": "~>0.6.1"
     },
     "license": "BSL-1.0",
     "name": "servefolder",
